@@ -53,7 +53,7 @@ mydtrsm_f(A, b, pvt);
 x(n) = y(n) / A(n, n);
 for i = n-1 : -1 : 1,
     x(i) = ( y(i) - sum ( x(i+1:n) .* A(i, i+1:n) ) ) / A(i,i);
-    x(i)
+    x(i+1:n)
 end
 mydtrsm_b(A, y);
 %Matlab solve. Your task: call dgetrf() to factorize and dtrsm() twice (back and forward substit.) to solve.

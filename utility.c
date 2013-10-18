@@ -6,10 +6,10 @@ void exchangerow(double *A, int N, int i, int j);
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]){
     mexPrintf("C PROGRAM START\n");
     double *Ain, *A;
-    int *pvtin, *pvt;
+    double *pvtin, *pvt;
     int M,N, i, j, k, tmp;
     int maxind;
-    double max;
+    double max, tmpd=0;
     /*mxget*/
     Ain = mxGetPr(prhs[0]);
     N = mxGetN(prhs[0]);
@@ -35,9 +35,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]){
         }
         else {
             if (maxind != i) {
-                tmp = pvt[i];
+        /*printout(pvt, 1, N);*/
+                tmpd = pvt[i];
                 pvt[i] = pvt[maxind];
-                pvt[maxind]=tmp;
+                pvt[maxind]=tmpd;
                 exchangerow(A, N, i, maxind);
             }
         }
