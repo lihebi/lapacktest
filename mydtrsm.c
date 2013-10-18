@@ -4,7 +4,7 @@ double* subv(double *vect, int flag, int start, int end, int N);
 double mysumdot(double *a, double *b);
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]){
     mexPrintf("C PROGRAM START\n");
-    double *A, *b, *y;
+    double *A, *b, *y, *x;
     double *pvt, *va, *vb;
     int i, tmp;
     int flag;
@@ -17,7 +17,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]){
     b = mxGetPr(prhs[1]);
     pvt= mxGetPr(prhs[2]);
     plhs[0] = mxCreateDoubleMatrix(1,N,mxREAL);
-    y = mxGetPr(plhs[0]);
+    y = mxGetPr(mxCreateDoubleMatrix(1,N,mxREAL));
+    x = mxGetPr(plhs[0]);
     /*forward*/
     tmp = pvt[0]-1;
     y[0] = b[tmp];
@@ -26,6 +27,15 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]){
         va = subv(y, -1, 0, i-1, N);
         vb = subv(A, i, 0, i-1, N);
         y[i] = b[tmp] - mysumdot(va, vb);
+        free(va);
+        free(vb);
+    }
+    /*back*/
+    x[N-1] = y[N-1] / A[(N-1)*N+N-1];
+    for (i=N-2;i>=0;i--) {
+        va = subv(x, -1, i+1, N-1, N);
+        vb = subv(A, i, i+1, N-1, N);
+        x[i] = (y[i] - mysumdot(va, vb)) /A[i*N+i];
         free(va);
         free(vb);
     }

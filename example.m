@@ -3,9 +3,6 @@ mylu(n);
 end
 function mylu(n)
 A=randn(n,n); b=randn(n,1); Abk=A; pvt = 1:n;
-A1 = A;
-pvt1=pvt;
-
 %return;
 %Factorize A. Your task: transform this part to mydgetrf().
 for i = 1 : n-1,
@@ -38,7 +35,6 @@ for i = 1 : n-1,
         end
     end
 end
-[Aout, pvtout] = mydgetrf(A1, pvt1);
 %verify my factorization with Matlab for small matrix by printing results on screen. May skip in your code
 myfactorization=A;
 mypivoting=pvt;
@@ -48,16 +44,13 @@ y(1) = b(pvt(1));
 for i = 2 : n,
     y(i) = b(pvt(i)) - sum ( y(1:i-1) .* A(i, 1:i-1) );
 end
-mydtrsm_f(A, b, pvt);
 % back substitution. Your task: transform this part to mydtrsm().
 x(n) = y(n) / A(n, n);
 for i = n-1 : -1 : 1,
     x(i) = ( y(i) - sum ( x(i+1:n) .* A(i, i+1:n) ) ) / A(i,i);
-    x(i)
 end
-mydtrsm_b(A, y);
 %Matlab solve. Your task: call dgetrf() to factorize and dtrsm() twice (back and forward substit.) to solve.
-%xx= Abk\b;
+xx= Abk\b;
 %verify my solution with matlab. Your task: verify your solution with the solution from LAPACK.
-%Solution_Difference_from_Matlab=norm(x'-xx')
+Solution_Difference_from_Matlab=norm(x'-xx)
 end
