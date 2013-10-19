@@ -1,9 +1,0 @@
-function final(n)
-    A=randn(n,n); b=randn(n,1); Abk=A; pvt = 1:n;
-    A1=A;pvt1=pvt;
-    [A, pvt] = oridgetrf(A1, pvt1)
-    mydgetrf(A, pvt1);
-    x = mydtrsm(Aout, b, pvtout);
-    xx= Abk\b;
-    norm(x'-xx)
-end

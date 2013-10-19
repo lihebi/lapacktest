@@ -5,6 +5,7 @@ function mylu(n)
 A=randn(n,n); b=randn(n,1); Abk=A; pvt = 1:n;
 %return;
 %Factorize A. Your task: transform this part to mydgetrf().
+tic;
 for i = 1 : n-1,
 % pivoting %
     maxind=i; max=abs(A(i,i));
@@ -49,6 +50,7 @@ x(n) = y(n) / A(n, n);
 for i = n-1 : -1 : 1,
     x(i) = ( y(i) - sum ( x(i+1:n) .* A(i, i+1:n) ) ) / A(i,i);
 end
+toc;
 %Matlab solve. Your task: call dgetrf() to factorize and dtrsm() twice (back and forward substit.) to solve.
 xx= Abk\b;
 %verify my solution with matlab. Your task: verify your solution with the solution from LAPACK.
