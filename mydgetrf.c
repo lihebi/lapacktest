@@ -1,10 +1,10 @@
 #include "mex.h"
 void copy(double *Aout, double *A, int M, int N);
 double myabs(double n);
-void printout(double *A, int M, int N);
 void exchangerow(double *A, int N, int i, int j);
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]){
-    mexPrintf("C PROGRAM START\n");
+	/*entry: A, pvt*/
+	/*out: A, pvt*/
     double *Ain, *A;
     double *pvtin, *pvt;
     int M,N, i, j, k, tmp;
@@ -35,7 +35,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]){
         }
         else {
             if (maxind != i) {
-        /*printout(pvt, 1, N);*/
                 tmpd = pvt[i];
                 pvt[i] = pvt[maxind];
                 pvt[maxind]=tmpd;
@@ -59,17 +58,8 @@ void exchangerow(double *A, int N, int i, int j){
         A[k*N+j] = tmp;
     }
 }
-void printout(double *A, int M, int N){
-    int i,j;
-    for (i=0;i<M;i++) {
-        for (j=0;j<N;j++) {
-            mexPrintf("%f ", A[j*M+i]);
-        }
-        mexPrintf("\n");
-    }
-    mexPrintf("\n");
-}
 void copy(double *Aout, double *A, int M, int N) {
+	/*deep copy. I do this because when I just return original A without copy from it, it turns out to be something unexpected.*/
     int i;
     for (i=0;i<M*N;i++) {
         Aout[i]=A[i];

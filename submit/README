@@ -1,0 +1,24 @@
+=ENVIRONMENT=
+Run under matlab r2011b(7.13.0.564) 32-bit
+gcc version "4.7.3"
+
+=FILES=
+example.m: the original code you give me.
+final.m: the code which use the C interface I write.
+mydgetrf.c: C code to implement the dgetrf routine.
+mydgetrf.mexglx: file generated from .c file which can be called from matlab.
+mytrsm.c: C code to implement the trsm routine.
+mytrsm.mexglx: file generated from .c file.
+
+=RUN=
+You can use "mex mydgetrf.c" to generate mydgetrf.mexglx.
+The same as others.
+
+Or you can just use the .mexglx files that I generate from .c files.
+
+Simply you can just use the final.m to get the result.
+e.g. >> final(1000);
+The result contains the norm and time cost.
+
+=RESULT=
+
