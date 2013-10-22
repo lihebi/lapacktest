@@ -1,8 +1,8 @@
 #include<math.h>
 #include<iostream>
 #include<stdlib.h>
-#include<f2c.h>
-#include<clapack.h>
+#include "f2c.h"
+#include"clapack.h"
 #include<time.h>
 #include<cmath>
 #define PI 3.1415926
@@ -10,26 +10,22 @@
 using namespace std;
 double *myrand(int m, int n);
 double singlerand();
-int mydgetrf(long int n, double *A, long int *pvt, int optim);
+void mydgetrf(long int n, double *A, long int *pvt, int optim);
 void exchangerow(double *A, long int n, int i, int j);
 double mysumdot(double *a, double *b);
 double *subv(double *vect, int flag, int start, int end, long int n);
 void mydtrsm( char UPLO, long int n, double *LU, double *B, long int *pvt);
 double mynorm(double *b1, double *b2, long int n);
-void printd(double *a, long int m, long int n);
 int main()
 {
-	double tmp;
-	long int n, i, j, k, info;
-	double dtmp;
+	long int n, info;
 	char SIDE = 'L';
 	char UPLO = 'L';
 	char TRANSA = 'N';
 	char DIAG = 'N';
 	double ALPHA = 1.0;
-	char flag='N';
 	srand(time(NULL));
-	n = 4;
+	n = 2000;
 	double *A = (double*)malloc(n*n*sizeof(double));
 	double *B = (double*)malloc(n*sizeof(double));
 	for (int i=0;i<n*n;i++) {
@@ -47,23 +43,12 @@ int main()
 	    }
 	}
 	long int pvt[n];
-	printd(A, n, n);
-	cout<<"============"<<endl;
-	printd(B, 1, n);
-	cout<<"============"<<endl;
 //---------------------------------
 	cout<<"my"<<endl;
 	mydgetrf(n, A, pvt, 1);
 	mydtrsm('L', n, A, B, pvt);
 	mydtrsm('U', n, A, B, pvt);
-	//printd(B, 1, n);
-	//printd(Bbk, 1, n);
 //--------------------------------
-	cout<<"my2"<<endl;
-	mydgetrf(n, Abk, pvt, 0);
-	mydtrsm('L', n, Abk, Bbk, pvt);
-	mydtrsm('U', n, Abk, Bbk, pvt);
-#if 0
 	cout<<"lapack"<<endl;
 	long int mm=1;
 	//dgesv_(&n, &mm, A, &n, pvt, B, &n, &info);
@@ -75,21 +60,10 @@ int main()
 	UPLO='U';
 	DIAG='N';
 	dtrsm_(&SIDE, &UPLO, &TRANSA, &DIAG, &n, &mm, &ALPHA, Abk, &n, Bbk, &n);
-#endif
 //---------------------------------
 	double norm = mynorm(B, Bbk, n);
-	printd(B, 1, n);
-	printd(Bbk, 1, n);
 	cout<<norm<<endl;
 	return 0;
-}
-void printd(double *a, long int m, long int n) {
-    for (int i=0;i<m;i++) {
-	for (int j=0;j<n;j++) {
-	    cout<<a[j*m+i]<<" ";
-	}
-	cout<<endl;
-    }
 }
 void mydtrsm( char UPLO, long int n, double *A, double *B, long int *pvt) {
     double y[n];
@@ -141,7 +115,7 @@ double mysumdot(double *a, double *b) {
     }
     return tmp;
 }
-int mydgetrf(long int n, double *A, long int *pvt, int optim) {
+void mydgetrf(long int n, double *A, long int *pvt, int optim) {
     int maxind;
     for (int i=0;i<n;i++) {
 	pvt[i]=i;
@@ -157,7 +131,7 @@ int mydgetrf(long int n, double *A, long int *pvt, int optim) {
 	}
 	if (max==0) {
 	    cout<<"LUfactoration failed: coefficient matrix is singular"<<endl;
-	    return 0;
+	    return;
 	}
 	else {
 	    if (maxind != 1) {
@@ -168,20 +142,19 @@ int mydgetrf(long int n, double *A, long int *pvt, int optim) {
 	    }
 	}
 	if (optim==1) {
-	    //col
 		for (int j=i+1;j<n;j++) {
-		    for (int k=0;k<i;k++) {
-		    	A[i*n+j] -= A[k*n+j]*A[i*n+k];
-		    }
 		    A[i*n+j] = A[i*n+j]/A[i*n+i];
 		}
-		//row
 		for (int j=i+1;j<n;j++) {
-		    for (int k=0;k<i+1;k++) {
-			A[j*n+i+1] -= A[k*n+i+1]*A[j*n+k];
+		    for (int k=0;k<i;k++) {
+			A[j*n+i] -= A[k*n+i]*A[j*n+k];
 		    }
 		}
-		//col2
+		for (int j=i+1;j<n;j++) {
+		    for (int k=0;k<i+1;k++) {
+			A[(i+1)*n+j] -= A[k*n+j]*A[(i+1)*n+k];
+		    }
+		}
 	} else {
 		for (int j=i+1;j<n;j++) {
 		    A[i*n+j] = A[i*n+j]/A[i*n+i];

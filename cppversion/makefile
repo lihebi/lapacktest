@@ -1,2 +1,2 @@
 a.out: final.cpp
-	g++ -g -Wall final.cpp -I/home/hebi/Downloads/CLAPACK/INCLUDE -llapack -lblas -lf2c
+	g++ -g -Wall final.cpp  -lf2c -llapack -lblas
