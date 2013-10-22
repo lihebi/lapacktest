@@ -9,24 +9,18 @@
 #define rd (rand()/(RAND_MAX+1.0))
 using namespace std;
 double *myrand(int m, int n);
-void printout(const char* str, double *v, int m, int n);
-void iprintout(const char* str, long int *v, int m, int n);
-void lihebi(double *A, double *B, double *x, long int n);
-double *getL(double* A, long int n);
-double *getU(double* A, long int n);
 double singlerand();
-void getLU(double *A, double *L, double *U, long int n);
-int mydgetrf(long int n, double *A, long int *pvt);
+int mydgetrf(long int n, double *A, long int *pvt, int optim);
 void exchangerow(double *A, long int n, int i, int j);
 double mysumdot(double *a, double *b);
 double *subv(double *vect, int flag, int start, int end, long int n);
 void mydtrsm( char UPLO, long int n, double *LU, double *B, long int *pvt);
 double mynorm(double *b1, double *b2, long int n);
+void printd(double *a, long int m, long int n);
 int main()
 {
 	double tmp;
 	long int n, i, j, k, info;
-	//double *A, *B;
 	double dtmp;
 	char SIDE = 'L';
 	char UPLO = 'L';
@@ -44,9 +38,6 @@ int main()
 	for (int i=0;i<n;i++) {
 	    B[i] = singlerand();
 	}
-	//A[0]=2;A[1]=1;A[2]=3;A[3]=2;B[0]=2;B[1]=3;
-	//A[0]=1;A[1]=2;A[2]=2;A[3]=3;B[0]=3;B[1]=2;
-	//for (int i=0;i<9;i++) A[i]=i+1; for (int i=0;i<3;i++) B[i]=i+1;
 	double *Abk = (double*)malloc(n*n*sizeof(double));
 	double *Bbk = (double*)malloc(n*sizeof(double));
 	for (int i=0;i<n;i++) {
@@ -56,39 +47,49 @@ int main()
 	    }
 	}
 	long int pvt[n];
-	printout("originA=======", A, n, n);
-	printout("originB=======", B, 1, n);
-	//printout("Abk =========", Abk, n, n);
-//#define MY
-#ifdef MY
+	printd(A, n, n);
+	cout<<"============"<<endl;
+	printd(B, 1, n);
+	cout<<"============"<<endl;
+//---------------------------------
 	cout<<"my"<<endl;
-	mydgetrf(n, A, pvt);
+	mydgetrf(n, A, pvt, 1);
 	mydtrsm('L', n, A, B, pvt);
 	mydtrsm('U', n, A, B, pvt);
-	//printout("B===========", B, 1, n);
-#else
+	//printd(B, 1, n);
+	//printd(Bbk, 1, n);
+//--------------------------------
+	cout<<"my2"<<endl;
+	mydgetrf(n, Abk, pvt, 0);
+	mydtrsm('L', n, Abk, Bbk, pvt);
+	mydtrsm('U', n, Abk, Bbk, pvt);
+#if 0
 	cout<<"lapack"<<endl;
 	long int mm=1;
-//#define GESV
-#ifdef GESV
-	dgesv_(&n, &mm, A, &n, pvt, B, &n, &info);
-#else
-	dgetrf_(&n, &n, A, &n, pvt, &info);
-	dlaswp_(&mm, B, &n, &mm, &n, pvt, &mm);
+	//dgesv_(&n, &mm, A, &n, pvt, B, &n, &info);
+	dgetrf_(&n, &n, Abk, &n, pvt, &info);
+	dlaswp_(&mm, Bbk, &n, &mm, &n, pvt, &mm);
 	UPLO='L';
 	DIAG='U';
-	dtrsm_(&SIDE, &UPLO, &TRANSA, &DIAG, &n, &mm, &ALPHA, A, &n, B, &n);
+	dtrsm_(&SIDE, &UPLO, &TRANSA, &DIAG, &n, &mm, &ALPHA, Abk, &n, Bbk, &n);
 	UPLO='U';
 	DIAG='N';
-	dtrsm_(&SIDE, &UPLO, &TRANSA, &DIAG, &n, &mm, &ALPHA, A, &n, B, &n);
+	dtrsm_(&SIDE, &UPLO, &TRANSA, &DIAG, &n, &mm, &ALPHA, Abk, &n, Bbk, &n);
 #endif
-#endif
-	//printout("Abk =========", Abk, n, n);
-	iprintout("pvt =======", pvt, 1, n);
-	lihebi(Abk, Bbk, B, n);
-	//double norm = mynorm(Bbk, Bbk, n);
-	//cout<<norm<<endl;
+//---------------------------------
+	double norm = mynorm(B, Bbk, n);
+	printd(B, 1, n);
+	printd(Bbk, 1, n);
+	cout<<norm<<endl;
 	return 0;
+}
+void printd(double *a, long int m, long int n) {
+    for (int i=0;i<m;i++) {
+	for (int j=0;j<n;j++) {
+	    cout<<a[j*m+i]<<" ";
+	}
+	cout<<endl;
+    }
 }
 void mydtrsm( char UPLO, long int n, double *A, double *B, long int *pvt) {
     double y[n];
@@ -140,7 +141,7 @@ double mysumdot(double *a, double *b) {
     }
     return tmp;
 }
-int mydgetrf(long int n, double *A, long int *pvt) {
+int mydgetrf(long int n, double *A, long int *pvt, int optim) {
     int maxind;
     for (int i=0;i<n;i++) {
 	pvt[i]=i;
@@ -166,27 +167,29 @@ int mydgetrf(long int n, double *A, long int *pvt) {
 		exchangerow(A, n, i, maxind);
 	    }
 	}
-#define optim
-#ifdef optim
-	for (int j=i+1;j<n;j++) {
-	    for (int k=0;k<i;k++) {
-	    	A[i*n+j] -= A[k*n+j]*A[i*n+k];
-	    }
-	    A[i*n+j] = A[i*n+j]/A[i*n+i];
+	if (optim==1) {
+	    //col
+		for (int j=i+1;j<n;j++) {
+		    for (int k=0;k<i;k++) {
+		    	A[i*n+j] -= A[k*n+j]*A[i*n+k];
+		    }
+		    A[i*n+j] = A[i*n+j]/A[i*n+i];
+		}
+		//row
+		for (int j=i+1;j<n;j++) {
+		    for (int k=0;k<i+1;k++) {
+			A[j*n+i+1] -= A[k*n+i+1]*A[j*n+k];
+		    }
+		}
+		//col2
+	} else {
+		for (int j=i+1;j<n;j++) {
+		    A[i*n+j] = A[i*n+j]/A[i*n+i];
+		    for (int k=i+1;k<n;k++) {
+			A[k*n+j] = A[k*n+j] - A[i*n+j]*A[k*n+i];
+		    }
+		}
 	}
-	for (int j=i+1;j<n;j++) {
-	    for (int k=0;k<i+1;k++) {
-		A[j*n+i+1] -= A[k*n+i+1]*A[j*n+k];
-	    }
-	}
-#else
-	for (int j=i+1;j<n;j++) {
-	    A[i*n+j] = A[i*n+j]/A[i*n+i];
-	    for (int k=i+1;k<n;k++) {
-		A[k*n+j] = A[k*n+j] - A[i*n+j]*A[k*n+i];
-	    }
-	}
-#endif
     }
 }
 void exchangerow(double *A, long int n, int i, int j) {
@@ -196,87 +199,12 @@ void exchangerow(double *A, long int n, int i, int j) {
 	A[k*n+j] = tmp;
     }
 }
-void lihebi(double *A, double *B, double *x, long int n) {
-    double tmp;
-    for (int i=0;i<n;i++) {
-	tmp = 0;
-	for (int j=0;j<n;j++) {
-	    cout<<"\t"<<A[j*n+i]<<" "<<x[j];
-	    tmp += A[j*n+i]*x[j];
-	}
-	cout<<"==>>> "<<tmp<<endl;
-    }
-}
 double mynorm(double *b1, double *b2, long int n) {
     double tmp=0;
     for (int i=0;i<n;i++) {
 	tmp += abs(b1[i]-b2[i]);
     }
     return tmp;
-}
-void getLU(double *A, double *L, double *U, long int n) {
-    for (int i=0;i<n;i++) {
-	for (int j=0;j<n;j++) {
-	    if (i<j) {
-		L[j*n+i] = 0;
-		U[j*n+i] = A[j*n+i];
-	    }else if (i==j) {
-		L[j*n+i] = 1;
-		U[j*n+i] = A[j*n+i];
-	    } else {
-		L[j*n+i] = A[j*n+i];
-		U[j*n+i] = 0;
-	    }
-	}
-    }
-}
-double *getL(double* A, long int n) {
-    double *L = (double*)malloc(n*n*sizeof(double));
-    for (int i=0;i<n;i++) {
-	for (int j=0;j<n;j++) {
-	    if (i<j) {
-		L[j*n+i] = 0;
-	    }else if (i==j) {
-		L[j*n+i] = 1;
-	    } else {
-		L[j*n+i] = A[j*n+i];
-	    }
-	}
-    }
-    return L;
-}
-double *getU(double* A, long int n) {
-    double *L = (double*)malloc(n*n*sizeof(double));
-    for (int i=0;i<n;i++) {
-	for (int j=0;j<n;j++) {
-	    if (i>j) {
-		L[j*n+i] = 0;
-	    } else {
-		L[j*n+i] = A[j*n+i];
-	    }
-	}
-    }
-    return L;
-}
-void printout(const char* str, double *v, int m, int n) {
-	int i,j;
-	cout<<str<<endl;
-	for (i=0;i<m;i++) {
-		for (j=0;j<n;j++) {
-			cout<<v[j*m+i]<<"\t";
-		}
-		cout<<endl;
-	}
-}
-void iprintout(const char* str, long int *v, int m, int n) {
-	int i,j;
-	cout<<str<<endl;
-	for (i=0;i<m;i++) {
-		for (j=0;j<n;j++) {
-			cout<<v[j*m+i]<<"\t";
-		}
-		cout<<endl;
-	}
 }
 double *myrand(int m, int n) {
 	int i;
