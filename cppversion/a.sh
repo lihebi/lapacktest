@@ -1,5 +1,5 @@
 #!/bin/sh
-dimen=3000
+dimen=5000
 echo '1 -------------------'
 ./lu $dimen 0
 ./lu $dimen 1
