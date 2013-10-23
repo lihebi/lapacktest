@@ -1,2 +1,2 @@
-a.out: final.cpp
-	g++ -g -Wall final.cpp  -lf2c -llapack -lblas
+lu: lu.cpp
+	g++ -g -Wall lu.cpp  -lf2c -llapack -lblas -o lu

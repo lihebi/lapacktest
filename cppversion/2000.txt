@@ -1,0 +1,65 @@
+1 -------------------
+dimention of A: 2000x2000
+My Algorithm: non-optimized
+	50.6 sec
+Lapack Algorithm
+	3.15 sec
+The norm between My alogorithm and the lapack one is: 6.33507e-11
+dimention of A: 2000x2000
+My Algorithm: optimized
+	38.97 sec
+Lapack Algorithm
+	3.12 sec
+The norm between My alogorithm and the lapack one is: 1.31903e-10
+2 -------------------
+dimention of A: 2000x2000
+My Algorithm: non-optimized
+	50.84 sec
+Lapack Algorithm
+	3.14 sec
+The norm between My alogorithm and the lapack one is: 1.04393e-10
+dimention of A: 2000x2000
+My Algorithm: optimized
+	38.83 sec
+Lapack Algorithm
+	3.15 sec
+The norm between My alogorithm and the lapack one is: 6.89632e-12
+3 -------------------
+dimention of A: 2000x2000
+My Algorithm: non-optimized
+	50.98 sec
+Lapack Algorithm
+	3.1 sec
+The norm between My alogorithm and the lapack one is: 7.74238e-10
+dimention of A: 2000x2000
+My Algorithm: optimized
+	38.82 sec
+Lapack Algorithm
+	3.15 sec
+The norm between My alogorithm and the lapack one is: 8.95067e-11
+4 -------------------
+dimention of A: 2000x2000
+My Algorithm: non-optimized
+	50.7 sec
+Lapack Algorithm
+	3.16 sec
+The norm between My alogorithm and the lapack one is: 2.32768e-09
+dimention of A: 2000x2000
+My Algorithm: optimized
+	38.95 sec
+Lapack Algorithm
+	3.15 sec
+The norm between My alogorithm and the lapack one is: 1.85545e-11
+5 -------------------
+dimention of A: 2000x2000
+My Algorithm: non-optimized
+	50.67 sec
+Lapack Algorithm
+	3.17 sec
+The norm between My alogorithm and the lapack one is: 8.70595e-12
+dimention of A: 2000x2000
+My Algorithm: optimized
+	38.97 sec
+Lapack Algorithm
+	3.15 sec
+The norm between My alogorithm and the lapack one is: 4.84638e-11
